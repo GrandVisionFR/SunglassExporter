@@ -22,7 +22,7 @@ class SunglassImporter extends Command
      *
      * @var string
      */
-    protected $signature = 'importer:sunglass';
+    protected $signature = 'exporter:sunglass';
 
     /**
      * The console command description.

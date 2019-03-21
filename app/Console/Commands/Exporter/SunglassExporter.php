@@ -1,0 +1,188 @@
+<?php
+
+namespace App\Console\Commands\Exporter;
+
+use Illuminate\Console\Command;
+use App\Models\Importer\Sunglass;
+use App\Models\Importer\Sunglass_variant;
+use App\Models\Exporter\Export_sunglass;
+use App\Models\Importer\Price;
+use App\Exports\SunglassExport;
+use App\Exports\SunglassGdoExport;
+use App\Models\Importer\Stocks;
+use Maatwebsite\Excel\Facades\Excel;
+
+class SunglassExporter extends Command
+{
+
+    protected $sessionTpl = [
+        'id' => '',
+        'export_type' => '',
+        'title' => '',
+        'description' => '',
+        'price' => '',
+        'sale_price' => '',
+        'sale_price_effective_date' => '',
+        'link' => '',
+        'condition' => '',
+        'product_type' => '',
+        'brand' => '',
+        'gtin' => '',
+        'image_link' => '',
+        'google_product_category' => '',
+        'shipping' => '',
+        'availability' => '',
+        'material' => '',
+        'color' => '',
+        'size' => '',
+        'shape' => '',
+        'age_group' => '',
+    ];
+
+    protected $availableFields = [
+        'id',
+        'title',
+        'description',
+        'price',
+        'sale_price',
+        'sale_price_effective_date',
+        'link',
+        'condition',
+        'product_type',
+        'brand',
+        'gtin',
+        'image_link',
+        'google_product_category',
+        'shipping',
+        'availability',
+        'material',
+        'color',
+        'size',
+        'shape',
+        'age_group',
+        'export_type'
+    ];
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'exporter:sunglass';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Export to CSV sunglasses DB.';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        Export_sunglass::truncate();
+
+        $products = Sunglass_variant::distinct('sunglass_variant_code')->get();
+        foreach($products as $product){
+            if($product->sunglass_variant_sapid != "sapid") {
+                $productBase = Sunglass::where('sunglass_code', $product->sunglass_variant_base_product)->first();
+                if(!$productBase)
+                    continue;
+                $productPrice = Price::where('price_catalog_version', $product->sunglass_variant_catalog_version)
+                    ->where('price_product', $product->sunglass_variant_code)
+                    ->orderBy('price_start_time', 'DESC')
+                    ->get();
+                if(!$productPrice)
+                    continue;
+                $productStocks = Stocks::where('productCode', $product->sunglass_variant_code)->first();
+                if(!$productStocks)
+                    continue;
+                $nSession = (object) $this->sessionTpl;
+                $nSession->export_type = $product->sunglass_variant_catalog_version;
+                $nSession->id = $product->sunglass_variant_code;
+                $nSession->title = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr;
+                $nSession->description = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr . ' en ' . $product->sunglass_frame_material . ' ' . $product->sunglass_variant_frame_web_colour;
+                if(stristr($product->sunglass_variant_catalog_version, 'GOP'))
+                    $nSession->link = "https://www.grandoptical.com/p/" . $product->sunglass_variant_code;
+                else
+                    $nSession->link = "https://www.generale-optique.com/p/" . $product->sunglass_variant_code;
+                $nSession->condition = "new";
+                $nSession->product_type = "Lunettes de soleil";
+                $nSession->brand = $productBase->sunglass_brand_name;
+                $nSession->gtin = $productBase->sunglass_variant_ean;
+                $nSession->image_link = "https://images.grandoptical.com/gvfrance?set=angle[1],articleNumber[" . $product->sunglass_variant_sapid . '],company[gop],finalSize[super]&call=url[file:common/productPresentation0517]';
+                $nSession->google_product_category = "178";
+                $nSession->shipping = "FR:::4.90 EUR";
+                if(!$productStocks->stock_text) {
+                    $nSession->availability = $productStocks->stock_text;
+                } else{
+                    $nSession->availability = 'out of stock';
+                }
+                $nSession->material = $productBase->sunglass_frame_material;
+                $nSession->color = $product->sunglass_variant_frame_web_colour;
+                $nSession->size = $productBase->sunglass_nose_size;
+                $nSession->shape = $productBase->sunglass_frame_shape;
+                $nSession->age_group = $productBase->sunglass_age_range;
+                $found = false;
+                if(count($productPrice) > 1){
+                    foreach($productPrice as $price) {
+                        if($found == false) {
+                            //dd($productPrice);
+                            $currentDate = date('Y-m-d');
+                            $startDate = explode(' ', $price->price_start_time)[0];
+                            $endDate = explode(' ', $price->price_end_time)[0];
+                            if ($currentDate >= $startDate && $endDate >= $currentDate) {
+                                $found = true;
+                                $nSession->price = $price->price_original_price;
+                                $nSession->sale_price = $price->price_price;
+                                $nSession->sale_price_effective_date = $price->price_start_time . '/' . $price->price_end_time;
+                            }
+                        }
+                    }
+                    if($found == false){
+                        $nSession->price = $productPrice[0]->price_price;
+                        $nSession->sale_price = $productPrice[0]->price_price;
+                    }
+                } else{
+                    $nSession->price = $productPrice[0]->price_price;
+                }
+                $nSession = (array) $nSession;
+                $exportSunglass = new Export_sunglass();
+                foreach(array_keys($nSession) as $key){
+                    if($exportSunglass->export_type == NULL){
+                        if(stristr($nSession['export_type'], 'gopProduct')){
+                            $exportSunglass->export_type = 'gop';
+                        } else{
+                            $exportSunglass->export_type = 'gdo';
+                        }
+                    }
+                    if(in_array($key, $this->availableFields)) {
+                        $exportSunglass->$key = $nSession[$key];
+                    }
+                }
+                if($nSession['sale_price']){
+                    //dd($nSession);
+                }
+                $exportSunglass->save();
+            }
+        }
+
+        Excel::store(new SunglassExport, getenv("export_clean_gop.csv"),null, \Maatwebsite\Excel\Excel::CSV);
+        Excel::store(new SunglassGdoExport, getenv("export_clean_gdo.csv"),null, \Maatwebsite\Excel\Excel::CSV);
+        return;
+    }
+}

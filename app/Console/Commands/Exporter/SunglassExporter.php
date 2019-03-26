@@ -181,8 +181,8 @@ class SunglassExporter extends Command
             }
         }
 
-        Excel::store(new SunglassExport, getenv("export_clean_gop.csv"),null, \Maatwebsite\Excel\Excel::CSV);
-        Excel::store(new SunglassGdoExport, getenv("export_clean_gdo.csv"),null, \Maatwebsite\Excel\Excel::CSV);
+        Excel::store(new SunglassExport, getenv("SUNGLASS_EXPORT_GOP"),null, \Maatwebsite\Excel\Excel::CSV);
+        Excel::store(new SunglassGdoExport, getenv("SUNGLASS_EXPORT_GDO"),null, \Maatwebsite\Excel\Excel::CSV);
         return;
     }
 }

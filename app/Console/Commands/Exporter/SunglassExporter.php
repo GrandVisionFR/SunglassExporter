@@ -97,7 +97,6 @@ class SunglassExporter extends Command
     public function handle()
     {
         Export_sunglass::truncate();
-
         $products = Sunglass_variant::distinct('sunglass_variant_code')->get();
         foreach($products as $product){
             if($product->sunglass_variant_sapid != "sapid") {
@@ -177,8 +176,9 @@ class SunglassExporter extends Command
             }
         }
 
-        Excel::store(new SunglassGopExport, getenv("SUNGLASS_EXPORT_GOP"),null, \Maatwebsite\Excel\Excel::CSV);
-        Excel::store(new SunglassGdoExport, getenv("SUNGLASS_EXPORT_GDO"),null, \Maatwebsite\Excel\Excel::CSV);
+        Excel::store(new SunglassGopExport, getenv("SUNGLASS_EXPORT_GOP"));
+        Excel::store(new SunglassGdoExport, getenv("SUNGLASS_EXPORT_GDO"));
         return;
     }
+
 }

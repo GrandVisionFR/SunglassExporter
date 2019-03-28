@@ -25,10 +25,9 @@ class SunglassImport implements ToModel, WithCustomCsvSettings
             'sunglass_frame_mounting' => $row['13'],
             'sunglass_nose_size' => $row['14'],
             'sunglass_brand_name' => $row['15'],
-            'sunglass_ean' => $row['16'],
-            'sunglass_promo_stickers' => $row['17'],
-            'sunglass_temple_length' => $row['18'],
-            'sunglass_lens_protection_index' => $row['19'],
+            'sunglass_promo_stickers' => $row['16'],
+            'sunglass_temple_length' => $row['17'],
+            'sunglass_lens_protection_index' => $row['18'],
         ]);
     }
 

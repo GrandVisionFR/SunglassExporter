@@ -127,7 +127,7 @@ class SunglassExporter extends Command
                 $nSession->condition = "new";
                 $nSession->product_type = "Lunettes de soleil";
                 $nSession->brand = $productBase->sunglass_brand_name;
-                $nSession->gtin = $productBase->sunglass_variant_ean;
+                $nSession->gtin = $product->sunglass_variant_ean;
                 if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE"))
                     $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
                 elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE"))

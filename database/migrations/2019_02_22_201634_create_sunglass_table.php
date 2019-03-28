@@ -30,7 +30,6 @@ class CreateSunglassTable extends Migration
             $table->string('sunglass_frame_mounting')->nullable();
             $table->string('sunglass_nose_size')->nullable();
             $table->string('sunglass_brand_name')->nullable();
-            $table->string('sunglass_ean')->nullable();
             $table->string('sunglass_promo_stickers')->nullable();
             $table->string('sunglass_temple_length')->nullable();
             $table->string('sunglass_lens_protection_index')->nullable();

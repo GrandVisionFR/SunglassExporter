@@ -29,6 +29,6 @@ class Sunglass extends Model
         'sunglass_ean',
         'sunglass_promo_stickers',
         'sunglass_temple_length',
-        'sunglass_lens_protection_index'
+        'sunglass_lens_protection_index',
     ];
 }

@@ -28,14 +28,14 @@ class SunglassImport implements ToModel, WithCustomCsvSettings
             'sunglass_ean' => $row['16'],
             'sunglass_promo_stickers' => $row['17'],
             'sunglass_temple_length' => $row['18'],
-            'sunglass_lens_protection_index' => $row['19']
+            'sunglass_lens_protection_index' => $row['19'],
         ]);
     }
 
     public function getCsvSettings(): array
     {
         return [
-            'input_encoding' => 'ISO-8859-1',
+            'input_encoding' => 'UTF-8',
             'delimiter' => ';'
         ];
     }

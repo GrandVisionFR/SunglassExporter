@@ -34,7 +34,8 @@ class SunglassGdoExport implements FromCollection, WithHeadings
             'size',
             'shape',
             'age_group',
-        ])->where('export_type', 'NOT LIKE', "%gop%")->get();
+            'promosticker',
+            ])->where('export_type', '=', getenv("GDO_CATALOG_CODE"))->get();
     }
 
     public function headings(): array
@@ -42,10 +43,10 @@ class SunglassGdoExport implements FromCollection, WithHeadings
         return [
             'id',
             'title',
-            'Description',
-            'Price',
-            'Sale_price',
-            'Sale_price_effective_date',
+            'description',
+            'price',
+            'sale_price',
+            'sale_price_effective_date',
             'link',
             'condition',
             'product_type',
@@ -59,7 +60,8 @@ class SunglassGdoExport implements FromCollection, WithHeadings
             'color',
             'size',
             'shape',
-            'age group'
+            'age group',
+            'promosticker',
         ];
     }
 }

@@ -6,11 +6,11 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\Exporter\Export_sunglass;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class SunglassExport implements FromCollection, WithHeadings
+class SunglassGopExport implements FromCollection, WithHeadings
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         return Export_sunglass::select([
@@ -34,7 +34,8 @@ class SunglassExport implements FromCollection, WithHeadings
             'size',
             'shape',
             'age_group',
-        ])->where('export_type', 'LIKE', "%gop%")->get();
+            'promosticker',
+        ])->where('export_type', '=', getenv("GOP_CATALOG_CODE"))->get();
     }
 
     public function headings(): array
@@ -42,10 +43,10 @@ class SunglassExport implements FromCollection, WithHeadings
         return [
             'id',
             'title',
-            'Description',
+            'description',
             'Price',
             'sale_price',
-            'Sale_price_effective_date',
+            'sale_price_effective_date',
             'link',
             'condition',
             'product_type',
@@ -60,6 +61,7 @@ class SunglassExport implements FromCollection, WithHeadings
             'size',
             'shape',
             'age group',
+            'promosticker',
         ];
     }
 }

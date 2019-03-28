@@ -46,21 +46,17 @@ class SunglassImporter extends Command
      */
     public function handle()
     {
-
-        Sunglass::truncate();
-        Stocks::truncate();
-        Sunglass_variant::truncate();
         Price::truncate();
-        $sunglass = storage_path(getenv("SUNGLASS_FILE"));
-        $sunglassVariant = storage_path(getenv("SUNGLASS_VARIANT_FILE"));
-        $priceFile = storage_path(getenv("SUNGLASS_PRICE_FILE"));
-        $stockFile = storage_path(getenv("SUNGLASS_STOCK_1_FILE"));
-        $stockFile2 = storage_path(getenv("SUNGLASS_STOCK_2_FILE"));
-        Excel::import(new StocksImport, $stockFile);
-        Excel::import(new StocksImport, $stockFile2);
-        Excel::import(new SunglassImport, $sunglass);
-        Excel::import(new SunglassVariantImport, $sunglassVariant);
-        Excel::import(new PriceImport, $priceFile);
+        Stocks::truncate();
+        Sunglass::truncate();
+        Sunglass_variant::truncate();
+
+        Excel::import(new PriceImport, storage_path(getenv("SUNGLASS_PRICE_FILE")));
+        Excel::import(new StocksImport, storage_path(getenv("SUNGLASS_STOCK_1_FILE")));
+        Excel::import(new StocksImport, storage_path(getenv("SUNGLASS_STOCK_2_FILE")));
+        Excel::import(new SunglassImport, storage_path(getenv("SUNGLASS_FILE")));
+        Excel::import(new SunglassVariantImport, storage_path(getenv("SUNGLASS_VARIANT_FILE")));
+
         Artisan::call("exporter:sunglass");
         return true;
     }

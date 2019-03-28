@@ -7,7 +7,7 @@ use App\Models\Importer\Sunglass;
 use App\Models\Importer\Sunglass_variant;
 use App\Models\Exporter\Export_sunglass;
 use App\Models\Importer\Price;
-use App\Exports\SunglassExport;
+use App\Exports\SunglassGopExport;
 use App\Exports\SunglassGdoExport;
 use App\Models\Importer\Stocks;
 use Maatwebsite\Excel\Facades\Excel;
@@ -37,6 +37,7 @@ class SunglassExporter extends Command
         'size' => '',
         'shape' => '',
         'age_group' => '',
+        'promosticker' => '',
     ];
 
     protected $availableFields = [
@@ -60,7 +61,8 @@ class SunglassExporter extends Command
         'size',
         'shape',
         'age_group',
-        'export_type'
+        'promosticker',
+        'export_type',
     ];
 
     /**
@@ -115,19 +117,23 @@ class SunglassExporter extends Command
                 $nSession->export_type = $product->sunglass_variant_catalog_version;
                 $nSession->id = $product->sunglass_variant_code;
                 $nSession->title = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr;
-                $nSession->description = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr . ' en ' . $product->sunglass_frame_material . ' ' . $product->sunglass_variant_frame_web_colour;
-                if(stristr($product->sunglass_variant_catalog_version, 'GOP'))
+                $nSession->description = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr . ' en ' . $productBase->sunglass_frame_material . ' ' . $product->sunglass_variant_frame_web_colour;
+                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE"))
                     $nSession->link = "https://www.grandoptical.com/p/" . $product->sunglass_variant_code;
-                else
+                elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE"))
                     $nSession->link = "https://www.generale-optique.com/p/" . $product->sunglass_variant_code;
+                else
+                    continue;
                 $nSession->condition = "new";
                 $nSession->product_type = "Lunettes de soleil";
                 $nSession->brand = $productBase->sunglass_brand_name;
                 $nSession->gtin = $productBase->sunglass_variant_ean;
-                if(stristr($product->sunglass_variant_catalog_version, 'GOP'))
+                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE"))
                     $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-                else
+                elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE"))
                     $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+                else
+                    continue;
 
                 $nSession->google_product_category = "178";
                 $nSession->shipping = "FR:::4.90 EUR";
@@ -137,6 +143,7 @@ class SunglassExporter extends Command
                 $nSession->size = $productBase->sunglass_nose_size;
                 $nSession->shape = $productBase->sunglass_frame_shape;
                 $nSession->age_group = $productBase->sunglass_age_range;
+                $nSession->promosticker = $productBase->sunglass_promo_stickers;
                 $found = false;
                 if(count($productPrice) > 1) {
                     foreach ($productPrice as $price) {
@@ -183,7 +190,7 @@ class SunglassExporter extends Command
             }
         }
 
-        Excel::store(new SunglassExport, getenv("SUNGLASS_EXPORT_GOP"),null, \Maatwebsite\Excel\Excel::CSV);
+        Excel::store(new SunglassGopExport, getenv("SUNGLASS_EXPORT_GOP"),null, \Maatwebsite\Excel\Excel::CSV);
         Excel::store(new SunglassGdoExport, getenv("SUNGLASS_EXPORT_GDO"),null, \Maatwebsite\Excel\Excel::CSV);
         return;
     }

@@ -36,6 +36,7 @@ class CreateExportSunglassTable extends Migration
             $table->text('shape')->nullable();
             $table->text('age_group')->nullable();
             $table->text('export_type')->nullable();
+            $table->text('promosticker')->nullable();
             $table->timestamps();
         });
     }

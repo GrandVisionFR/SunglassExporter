@@ -118,23 +118,19 @@ class SunglassExporter extends Command
                 $nSession->id = $product->sunglass_variant_code;
                 $nSession->title = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr;
                 $nSession->description = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr . ' en ' . $productBase->sunglass_frame_material . ' ' . $product->sunglass_variant_frame_web_colour;
-                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE"))
+                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE")) {
                     $nSession->link = "https://www.grandoptical.com/p/" . $product->sunglass_variant_code;
-                elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE"))
+                    $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+                } elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE")) {
                     $nSession->link = "https://www.generale-optique.com/p/" . $product->sunglass_variant_code;
-                else
+                    $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+                } else {
                     continue;
+                }
                 $nSession->condition = "new";
                 $nSession->product_type = "Lunettes de soleil";
                 $nSession->brand = $productBase->sunglass_brand_name;
                 $nSession->gtin = $product->sunglass_variant_ean;
-                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE"))
-                    $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-                elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE"))
-                    $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-                else
-                    continue;
-
                 $nSession->google_product_category = "178";
                 $nSession->shipping = "FR:::4.90 EUR";
                 $nSession->availability = $productStocks->stock_text;
@@ -145,14 +141,17 @@ class SunglassExporter extends Command
                 $nSession->age_group = $productBase->sunglass_age_range;
                 $nSession->promosticker = $productBase->sunglass_promo_stickers;
                 $found = false;
-                if(count($productPrice) > 1) {
+                $defaultOriginalPrice = null;
+
+                if(count($productPrice) > 0) {
                     foreach ($productPrice as $price) {
                         if ($found == false) {
-                            //dd($productPrice);
                             $currentDate = date('Y-m-d');
-                            $startDate = explode(' ', $price->price_start_time)[0];
-                            $endDate = explode(' ', $price->price_end_time)[0];
-                            if ($currentDate >= $startDate && $endDate >= $currentDate) {
+                            $startDate = explode('T', $price->price_start_time)[0];
+                            $endDate = explode('T', $price->price_end_time)[0];
+                            if($startDate == '' && $endDate == ''){
+                                $defaultOriginalPrice = $price->price_price . " EUR";
+                            } else if ($currentDate >= $startDate && $endDate >= $currentDate) {
                                 $found = true;
                                 $nSession->price = $price->price_original_price . " EUR";
                                 $nSession->sale_price = $price->price_price . " EUR";
@@ -161,30 +160,18 @@ class SunglassExporter extends Command
                         }
                     }
                     if ($found == false) {
-                        $nSession->price = $productPrice[0]->price_price . " EUR";
-                        $nSession->sale_price = $productPrice[0]->price_price . " EUR";
+                        $nSession->price = $defaultOriginalPrice;
                     }
-                } elseif (count($productPrice) == 1){
-                    $nSession->price = $productPrice[0]->price_price . " EUR";
                 } else{
                     continue;
                 }
+
                 $nSession = (array) $nSession;
                 $exportSunglass = new Export_sunglass();
                 foreach(array_keys($nSession) as $key){
-                    if($exportSunglass->export_type == NULL){
-                        if(stristr($nSession['export_type'], 'gopProduct')){
-                            $exportSunglass->export_type = 'gop';
-                        } else{
-                            $exportSunglass->export_type = 'gdo';
-                        }
-                    }
                     if(in_array($key, $this->availableFields)) {
                         $exportSunglass->$key = $nSession[$key];
                     }
-                }
-                if($nSession['sale_price']){
-                    //dd($nSession);
                 }
                 $exportSunglass->save();
             }

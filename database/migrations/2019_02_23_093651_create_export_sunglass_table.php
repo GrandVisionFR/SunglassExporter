@@ -20,7 +20,7 @@ class CreateExportSunglassTable extends Migration
             $table->text('description')->nullable();
             $table->text('price')->nullable();
             $table->text('sale_price')->nullable();
-            $table->text('Sale_price_effective_date')->nullable();
+            $table->text('sale_price_effective_date')->nullable();
             $table->text('link')->nullable();
             $table->text('condition')->nullable();
             $table->text('product_type')->nullable();

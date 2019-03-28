@@ -15,25 +15,26 @@ class CreateSunglassTable extends Migration
     {
         Schema::create('sunglass', function (Blueprint $table) {
             $table->increments('sunglass_id');
-            $table->text('sunglass_catalog_version')->nullable();
-            $table->text('sunglass_code')->nullable();
-            $table->text('sunglass_sapid')->nullable();
-            $table->text('sunglass_online_date')->nullable();
-            $table->text('sunglass_offline_date')->nullable();
-            $table->text('sunglass_synergie_name_fr')->nullable();
-            $table->text('sunglass_frame_genre')->nullable();
-            $table->text('sunglass_description_fr')->nullable();
-            $table->text('sunglass_age_range')->nullable();
-            $table->text('sunglass_frame_material')->nullable();
-            $table->text('sunglass_frame_model')->nullable();
-            $table->text('sunglass_frame_shape')->nullable();
-            $table->text('sunglass_frame_mounting')->nullable();
-            $table->text('sunglass_nose_size')->nullable();
-            $table->text('sunglass_brand_name')->nullable();
-            $table->text('sunglass_ean')->nullable();
-            $table->text('sunglass_promo_stickers')->nullable();
-            $table->text('sunglass_temple_length')->nullable();
-            $table->text('sunglass_lens_protection_index')->nullable();
+            $table->string('sunglass_catalog_version')->nullable();
+            $table->string('sunglass_code')->nullable();
+            $table->string('sunglass_sapid')->nullable();
+            $table->string('sunglass_online_date')->nullable();
+            $table->string('sunglass_offline_date')->nullable();
+            $table->string('sunglass_synergie_name_fr')->nullable();
+            $table->string('sunglass_frame_genre')->nullable();
+            $table->string('sunglass_description_fr')->nullable();
+            $table->string('sunglass_age_range')->nullable();
+            $table->string('sunglass_frame_material')->nullable();
+            $table->string('sunglass_frame_model')->nullable();
+            $table->string('sunglass_frame_shape')->nullable();
+            $table->string('sunglass_frame_mounting')->nullable();
+            $table->string('sunglass_nose_size')->nullable();
+            $table->string('sunglass_brand_name')->nullable();
+            $table->string('sunglass_ean')->nullable();
+            $table->string('sunglass_promo_stickers')->nullable();
+            $table->string('sunglass_temple_length')->nullable();
+            $table->string('sunglass_lens_protection_index')->nullable();
+            $table->index('sunglass_code');
             $table->timestamps();
         });
     }

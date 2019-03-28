@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateExportStocksTable extends Migration
+class CreateStocksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateExportStocksTable extends Migration
      */
     public function up()
     {
-        Schema::create('export_stocks', function (Blueprint $table) {
-            $table->increments('export_stock_id');
-            $table->text('productCode')->nullable();
-            $table->text('stock_text')->nullable();
+        Schema::create('stocks', function (Blueprint $table) {
+            $table->increments('stock_id');
+            $table->string('productCode')->nullable();
+            $table->string('stock_text')->nullable();
             $table->timestamps();
+            $table->index('productCode');
         });
     }
 

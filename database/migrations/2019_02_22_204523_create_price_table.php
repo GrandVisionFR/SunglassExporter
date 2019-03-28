@@ -15,13 +15,14 @@ class CreatePriceTable extends Migration
     {
         Schema::create('price', function (Blueprint $table) {
             $table->increments('price_id');
-            $table->text('price_catalog_version')->nullable();
-            $table->text('price_product')->nullable();
-            $table->text('price_start_time')->nullable();
-            $table->text('price_end_time')->nullable();
-            $table->text('price_original_price')->nullable();
-            $table->text('price_price')->nullable();
+            $table->string('price_catalog_version')->nullable();
+            $table->string('price_product')->nullable();
+            $table->string('price_start_time')->nullable();
+            $table->string('price_end_time')->nullable();
+            $table->string('price_original_price')->nullable();
+            $table->string('price_price')->nullable();
             $table->timestamps();
+            $table->index(['price_catalog_version', 'price_product']);
         });
     }
 

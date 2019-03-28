@@ -124,41 +124,43 @@ class SunglassExporter extends Command
                 $nSession->product_type = "Lunettes de soleil";
                 $nSession->brand = $productBase->sunglass_brand_name;
                 $nSession->gtin = $productBase->sunglass_variant_ean;
-                $nSession->image_link = "https://images.grandoptical.com/gvfrance?set=angle[1],articleNumber[" . $product->sunglass_variant_sapid . '],company[gop],finalSize[super]&call=url[file:common/productPresentation0517]';
+                if(stristr($product->sunglass_variant_catalog_version, 'GOP'))
+                    $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+                else
+                    $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+
                 $nSession->google_product_category = "178";
                 $nSession->shipping = "FR:::4.90 EUR";
-                if(!$productStocks->stock_text) {
-                    $nSession->availability = $productStocks->stock_text;
-                } else{
-                    $nSession->availability = 'out of stock';
-                }
+                $nSession->availability = $productStocks->stock_text;
                 $nSession->material = $productBase->sunglass_frame_material;
                 $nSession->color = $product->sunglass_variant_frame_web_colour;
                 $nSession->size = $productBase->sunglass_nose_size;
                 $nSession->shape = $productBase->sunglass_frame_shape;
                 $nSession->age_group = $productBase->sunglass_age_range;
                 $found = false;
-                if(count($productPrice) > 1){
-                    foreach($productPrice as $price) {
-                        if($found == false) {
+                if(count($productPrice) > 1) {
+                    foreach ($productPrice as $price) {
+                        if ($found == false) {
                             //dd($productPrice);
                             $currentDate = date('Y-m-d');
                             $startDate = explode(' ', $price->price_start_time)[0];
                             $endDate = explode(' ', $price->price_end_time)[0];
                             if ($currentDate >= $startDate && $endDate >= $currentDate) {
                                 $found = true;
-                                $nSession->price = $price->price_original_price;
-                                $nSession->sale_price = $price->price_price;
+                                $nSession->price = $price->price_original_price . " EUR";
+                                $nSession->sale_price = $price->price_price . " EUR";
                                 $nSession->sale_price_effective_date = $price->price_start_time . '/' . $price->price_end_time;
                             }
                         }
                     }
-                    if($found == false){
-                        $nSession->price = $productPrice[0]->price_price;
-                        $nSession->sale_price = $productPrice[0]->price_price;
+                    if ($found == false) {
+                        $nSession->price = $productPrice[0]->price_price . " EUR";
+                        $nSession->sale_price = $productPrice[0]->price_price . " EUR";
                     }
+                } elseif (count($productPrice) == 1){
+                    $nSession->price = $productPrice[0]->price_price . " EUR";
                 } else{
-                    $nSession->price = $productPrice[0]->price_price;
+                    continue;
                 }
                 $nSession = (array) $nSession;
                 $exportSunglass = new Export_sunglass();

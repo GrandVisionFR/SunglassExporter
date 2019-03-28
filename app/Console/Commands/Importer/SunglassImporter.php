@@ -1,8 +1,6 @@
 <?php
 namespace App\Console\Commands\Importer;
 
-ini_set('memory_limit', '200M');
-
 use Illuminate\Console\Command;
 use App\Imports\SunglassImport;
 use App\Imports\SunglassVariantImport;

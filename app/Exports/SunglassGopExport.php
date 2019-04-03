@@ -34,6 +34,7 @@ class SunglassGopExport implements FromCollection, WithHeadings
             'size',
             'shape',
             'age_group',
+            'gender',
             'promosticker',
         ])->where('export_type', '=', getenv("GOP_CATALOG_CODE"))->get();
     }
@@ -61,6 +62,7 @@ class SunglassGopExport implements FromCollection, WithHeadings
             'size',
             'shape',
             'age group',
+            'gender',
             'promosticker',
         ];
     }

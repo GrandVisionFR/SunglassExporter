@@ -76,10 +76,10 @@ class SunglassExporter extends Command
     ];
 
     protected $genderMapping = [
-        'Homme'         => 'Homme',
-        'Femme'         => 'Femme',
-        'Homme,Femme'   => 'Unisex',
-        'Enfant'        => '',
+        'Homme'         => 'homme',
+        'Femme'         => 'femme',
+        'Homme,Femme'   => 'unisexe',
+        'Enfant'        => 'unisexe',
         'DEFAULT'       => '',
     ];
 
@@ -149,8 +149,6 @@ class SunglassExporter extends Command
                 $nSession->shape = $productBase->sunglass_frame_shape;
                 $nSession->age_group = $this->getAgeGroup($productBase->sunglass_age_range);
                 $nSession->gender = $this->getGender($productBase->sunglass_frame_genre);
-                if($nSession->gender == 'UNKNOW')
-                    print $nSession->id . '  ' . $productBase->sunglass_frame_genre . "\n";
                 $nSession->promosticker = $productBase->sunglass_promo_stickers;
 
                 if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE")) {

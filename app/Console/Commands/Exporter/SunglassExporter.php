@@ -37,6 +37,7 @@ class SunglassExporter extends Command
         'size' => '',
         'shape' => '',
         'age_group' => '',
+        'gender' => '',
         'promosticker' => '',
     ];
 
@@ -61,8 +62,25 @@ class SunglassExporter extends Command
         'size',
         'shape',
         'age_group',
+        'gender',
         'promosticker',
         'export_type',
+    ];
+
+    protected $ageGroupMapping = [
+        'AGE_0_3'   => 'bébés',
+        'AGE_4_6'   => 'tout-petits',
+        'AGE_7_12'  => 'enfants',
+        'AGE_13_13' => 'enfants',
+        'DEFAULT'   => 'adultes',
+    ];
+
+    protected $genderMapping = [
+        'Homme'         => 'Homme',
+        'Femme'         => 'Femme',
+        'Homme,Femme'   => 'Unisex',
+        'Enfant'        => '',
+        'DEFAULT'       => '',
     ];
 
     /**
@@ -112,20 +130,12 @@ class SunglassExporter extends Command
                 $productStocks = Stocks::where('productCode', $product->sunglass_variant_code)->first();
                 if(!$productStocks)
                     continue;
+
                 $nSession = (object) $this->sessionTpl;
                 $nSession->export_type = $product->sunglass_variant_catalog_version;
                 $nSession->id = $product->sunglass_variant_code;
-                $nSession->title = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr;
+                $nSession->title = $this->getTitle('SUN', $productBase->sunglass_brand_name, $productBase->sunglass_frame_genre, $productBase->sunglass_age_range, $product->sunglass_variant_frame_web_colour, $product->sunglass_variant_synergie_name_fr);
                 $nSession->description = "Lunettes de soleil " . $productBase->sunglass_brand_name. ' ' . $product->sunglass_variant_synergie_name_fr . ' en ' . $productBase->sunglass_frame_material . ' ' . $product->sunglass_variant_frame_web_colour;
-                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE")) {
-                    $nSession->link = "https://www.grandoptical.com/p/" . $product->sunglass_variant_code;
-                    $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-                } elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE")) {
-                    $nSession->link = "https://www.generale-optique.com/p/" . $product->sunglass_variant_code;
-                    $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-                } else {
-                    continue;
-                }
                 $nSession->condition = "new";
                 $nSession->product_type = "Lunettes de soleil";
                 $nSession->brand = $productBase->sunglass_brand_name;
@@ -137,11 +147,24 @@ class SunglassExporter extends Command
                 $nSession->color = $product->sunglass_variant_frame_web_colour;
                 $nSession->size = $productBase->sunglass_nose_size;
                 $nSession->shape = $productBase->sunglass_frame_shape;
-                $nSession->age_group = $productBase->sunglass_age_range;
+                $nSession->age_group = $this->getAgeGroup($productBase->sunglass_age_range);
+                $nSession->gender = $this->getGender($productBase->sunglass_frame_genre);
+                if($nSession->gender == 'UNKNOW')
+                    print $nSession->id . '  ' . $productBase->sunglass_frame_genre . "\n";
                 $nSession->promosticker = $productBase->sunglass_promo_stickers;
+
+                if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE")) {
+                    $nSession->link = "https://www.grandoptical.com/p/" . $product->sunglass_variant_code;
+                    $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+                } elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE")) {
+                    $nSession->link = "https://www.generale-optique.com/p/" . $product->sunglass_variant_code;
+                    $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+                } else {
+                    continue;
+                }
+
                 $found = false;
                 $defaultOriginalPrice = null;
-
                 if(count($productPrice) > 0) {
                     foreach ($productPrice as $price) {
                         if ($found == false) {
@@ -179,6 +202,65 @@ class SunglassExporter extends Command
         Excel::store(new SunglassGopExport, getenv("SUNGLASS_EXPORT_GOP"));
         Excel::store(new SunglassGdoExport, getenv("SUNGLASS_EXPORT_GDO"));
         return;
+    }
+
+    /**
+     * @param $ageGroup
+     * @return mixed
+     */
+    private function getAgeGroup($ageGroup){
+        if(isset($this->ageGroupMapping[$ageGroup])){
+            return $this->ageGroupMapping[$ageGroup];
+        }
+        return $this->ageGroupMapping['DEFAULT'];
+    }
+
+    /**
+     * @param $ageGroup
+     * @return mixed
+     */
+    private function getGender($gender){
+        if(isset($this->genderMapping[$gender])){
+            return $this->genderMapping[$gender];
+        }
+        return $this->genderMapping['DEFAULT'];
+    }
+
+    /**
+     * @param $productType
+     * @param $brand
+     * @param $gender
+     * @param $ageGroup
+     * @param $color
+     * @param $synergieName
+     * @return string
+     */
+    private function getTitle($productType, $brand, $gender, $ageGroup, $color, $synergieName){
+        $title = '';
+
+        if(isset($brand)){
+            $title .= ucfirst($brand) . ' - ';
+        }
+
+        if($productType == 'SUN'){
+            $title .= 'Lunettes de soleil';;
+        }
+
+        if(isset($this->ageGroupMapping[$ageGroup])){
+            $title .= ' ' . $this->ageGroupMapping[$ageGroup];
+        } else {
+            $title .= ' ' . $gender;
+        }
+
+        if(isset($color)){
+            $title .= ' ' . $color;
+        }
+
+        if(strtoupper(preg_replace('/[ -]+/','', $brand)) == 'RAYBAN'){
+            $title .= ' - ' . $synergieName;
+        }
+
+        return $title;
     }
 
 }

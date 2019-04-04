@@ -32,7 +32,6 @@ class SunglassGdoExport implements FromCollection, WithHeadings
             'material',
             'color',
             'size',
-            'shape',
             'age_group',
             'gender',
             'promosticker',
@@ -60,10 +59,9 @@ class SunglassGdoExport implements FromCollection, WithHeadings
             'material',
             'color',
             'size',
-            'shape',
-            'age group',
+            'age_group',
             'gender',
-            'promosticker',
+            'custom_label_0',
         ];
     }
 }

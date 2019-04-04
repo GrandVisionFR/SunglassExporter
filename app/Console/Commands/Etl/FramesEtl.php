@@ -35,7 +35,6 @@ class FramesEtl extends Command
         'material' => '',
         'color' => '',
         'size' => '',
-        'shape' => '',
         'age_group' => '',
         'gender' => '',
         'promosticker' => '',
@@ -60,7 +59,6 @@ class FramesEtl extends Command
         'material',
         'color',
         'size',
-        'shape',
         'age_group',
         'gender',
         'promosticker',
@@ -149,13 +147,12 @@ class FramesEtl extends Command
 
             $nSession->export_type              = $product->catalog_version;
             $nSession->id                       = $product->code;
-            $nSession->color                    = $product->frame_web_colour;
+            $nSession->color                    = str_replace(',', '/', $product->frame_web_colour);
             $nSession->gtin                     = $product->ean;
             $nSession->promosticker             = $product->promo_stickers;
 
             $nSession->material                 = $productBase->frame_material;
             $nSession->size                     = $productBase->nose_size;
-            $nSession->shape                    = $productBase->frame_shape;
             $nSession->brand                    = $productBase->brand_name;
 
             $nSession->availability             = $productStocks->stock_text;
@@ -189,11 +186,11 @@ class FramesEtl extends Command
                         $startDate = explode('T', $price->start_time)[0];
                         $endDate = explode('T', $price->end_time)[0];
                         if($startDate == '' && $endDate == ''){
-                            $defaultOriginalPrice = $price->price . " EUR";
+                            $defaultOriginalPrice = number_format($price->price, 2) . " EUR";
                         } else if ($currentDate >= $startDate && $endDate >= $currentDate) {
                             $found = true;
-                            $nSession->price = $price->original_price . " EUR";
-                            $nSession->sale_price = $price->price . " EUR";
+                            $nSession->price = number_format($price->original_price, 2) . " EUR";
+                            $nSession->sale_price = number_format($price->price, 2) . " EUR";
                             $nSession->sale_price_effective_date = $price->start_time . '/' . $price->end_time;
                         }
                     }

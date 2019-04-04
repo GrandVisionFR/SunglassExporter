@@ -6,8 +6,15 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\Exporter\ExportProducts;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class SunglassGopExport implements FromCollection, WithHeadings
+class ProductExport implements FromCollection, WithHeadings
 {
+    /**
+     * The name of the type of the export.
+     *
+     * @var string
+     */
+    protected $exportType = '';
+
     /**
      * @return \Illuminate\Support\Collection
      */
@@ -35,7 +42,7 @@ class SunglassGopExport implements FromCollection, WithHeadings
             'age_group',
             'gender',
             'promosticker',
-        ])->where('export_type', '=', getenv("GOP_CATALOG_CODE"))->get();
+            ])->where('export_type', '=', $this->exportType)->get();
     }
 
     public function headings(): array
@@ -44,7 +51,7 @@ class SunglassGopExport implements FromCollection, WithHeadings
             'id',
             'title',
             'description',
-            'Price',
+            'price',
             'sale_price',
             'sale_price_effective_date',
             'link',
@@ -59,7 +66,7 @@ class SunglassGopExport implements FromCollection, WithHeadings
             'material',
             'color',
             'size',
-            'age group',
+            'age_group',
             'gender',
             'custom_label_0',
         ];

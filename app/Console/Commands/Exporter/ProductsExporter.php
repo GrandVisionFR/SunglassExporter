@@ -3,8 +3,8 @@
 namespace App\Console\Commands\Exporter;
 
 use Illuminate\Console\Command;
-use App\Exports\SunglassGopExport;
-use App\Exports\SunglassGdoExport;
+use App\Exports\GdoProductExport;
+use App\Exports\GopProductExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductsExporter extends Command
@@ -41,8 +41,8 @@ class ProductsExporter extends Command
      */
     public function handle()
     {
-        Excel::store(new SunglassGopExport, getenv("FRAMES_EXPORT_GOP"));
-        Excel::store(new SunglassGdoExport, getenv("FRAMES_EXPORT_GDO"));
+        Excel::store(new GopProductExport, getenv("PRODUCTS_EXPORT_GOP"));
+        Excel::store(new GdoProductExport, getenv("PRODUCTS_EXPORT_GDO"));
         return;
     }
 

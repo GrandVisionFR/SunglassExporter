@@ -2,6 +2,7 @@
 namespace App\Console\Commands\Importer;
 
 use Illuminate\Console\Command;
+use App\Imports\FramesImport;
 use App\Imports\SunglassImport;
 use App\Imports\SunglassVariantImport;
 use App\Imports\PriceImport;
@@ -57,7 +58,7 @@ class SunglassImporter extends Command
         Excel::import(new SunglassImport, storage_path(getenv("SUNGLASS_FILE")));
         Excel::import(new SunglassVariantImport, storage_path(getenv("SUNGLASS_VARIANT_FILE")));
 
-        Artisan::call("exporter:sunglass");
+        //Artisan::call("exporter:sunglass");
         return true;
     }
 }

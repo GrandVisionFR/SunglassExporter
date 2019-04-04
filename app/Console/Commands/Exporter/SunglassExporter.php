@@ -5,7 +5,7 @@ namespace App\Console\Commands\Exporter;
 use Illuminate\Console\Command;
 use App\Models\Importer\Frames;
 use App\Models\Importer\FramesVariant;
-use App\Models\Exporter\ExportFrames;
+use App\Models\Exporter\ExportProducts;
 use App\Models\Importer\Price;
 use App\Models\Importer\Stocks;
 use App\Exports\SunglassGopExport;
@@ -117,7 +117,7 @@ class SunglassExporter extends Command
      */
     public function handle()
     {
-        ExportFrames::truncate();
+        ExportProducts::truncate();
         $products = FramesVariant::distinct('code')->get();
         foreach($products as $product){
 
@@ -132,9 +132,9 @@ class SunglassExporter extends Command
             if(!$productBase)
                 continue;
 
-            $productPrice = Price::where('price_catalog_version', $product->catalog_version)
-                ->where('price_product', $product->code)
-                ->orderBy('price_start_time', 'DESC')
+            $productPrice = Price::where('catalog_version', $product->catalog_version)
+                ->where('product', $product->code)
+                ->orderBy('start_time', 'DESC')
                 ->get();
 
             // Bypass variant if no priceRow found
@@ -189,15 +189,15 @@ class SunglassExporter extends Command
                 foreach ($productPrice as $price) {
                     if ($found == false) {
                         $currentDate = date('Y-m-d');
-                        $startDate = explode('T', $price->price_start_time)[0];
-                        $endDate = explode('T', $price->price_end_time)[0];
+                        $startDate = explode('T', $price->start_time)[0];
+                        $endDate = explode('T', $price->end_time)[0];
                         if($startDate == '' && $endDate == ''){
-                            $defaultOriginalPrice = $price->price_price . " EUR";
+                            $defaultOriginalPrice = $price->price . " EUR";
                         } else if ($currentDate >= $startDate && $endDate >= $currentDate) {
                             $found = true;
-                            $nSession->price = $price->price_original_price . " EUR";
-                            $nSession->sale_price = $price->price_price . " EUR";
-                            $nSession->sale_price_effective_date = $price->price_start_time . '/' . $price->price_end_time;
+                            $nSession->price = $price->original_price . " EUR";
+                            $nSession->sale_price = $price->price . " EUR";
+                            $nSession->sale_price_effective_date = $price->start_time . '/' . $price->end_time;
                         }
                     }
                 }
@@ -209,7 +209,7 @@ class SunglassExporter extends Command
             }
 
             $nSession = (array) $nSession;
-            $exportSunglass = new ExportFrames();
+            $exportSunglass = new ExportProducts();
             foreach(array_keys($nSession) as $key){
                 if(in_array($key, $this->availableFields)) {
                     $exportSunglass->$key = $nSession[$key];

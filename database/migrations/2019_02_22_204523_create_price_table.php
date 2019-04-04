@@ -14,15 +14,15 @@ class CreatePriceTable extends Migration
     public function up()
     {
         Schema::create('price', function (Blueprint $table) {
-            $table->increments('price_id');
-            $table->string('price_catalog_version')->nullable();
-            $table->string('price_product')->nullable();
-            $table->string('price_start_time')->nullable();
-            $table->string('price_end_time')->nullable();
-            $table->string('price_original_price')->nullable();
-            $table->string('price_price')->nullable();
+            $table->increments('id');
+            $table->string('catalog_version')->nullable();
+            $table->string('product')->nullable();
+            $table->string('start_time')->nullable();
+            $table->string('end_time')->nullable();
+            $table->string('original_price')->nullable();
+            $table->string('price')->nullable();
             $table->timestamps();
-            $table->index(['price_catalog_version', 'price_product']);
+            $table->index(['catalog_version', 'product']);
         });
     }
 

@@ -10,12 +10,12 @@ class PriceImport implements ToModel, WithCustomCsvSettings
     public function model(Array $row)
     {
         return new Price([
-            'price_catalog_version' => $row['1'],
-            'price_product' => $row['2'],
-            'price_start_time' => $row['3'],
-            'price_end_time' => $row['4'],
-            'price_original_price' => $row['5'],
-            'price_price' => $row['6'],
+            'catalog_version' => $row['1'],
+            'product' => $row['2'],
+            'start_time' => $row['3'],
+            'end_time' => $row['4'],
+            'original_price' => $row['5'],
+            'price' => $row['6'],
         ]);
     }
 

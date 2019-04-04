@@ -13,8 +13,8 @@ class CreateExportSunglassTable extends Migration
      */
     public function up()
     {
-        Schema::create('export_sunglass', function (Blueprint $table) {
-            $table->increments('export_sunglass_id');
+        Schema::create('export_products', function (Blueprint $table) {
+            $table->increments('pk');
             $table->text('id')->nullable();
             $table->text('title')->nullable();
             $table->text('description')->nullable();
@@ -49,6 +49,6 @@ class CreateExportSunglassTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('export_sunglass');
+        Schema::dropIfExists('export_products');
     }
 }

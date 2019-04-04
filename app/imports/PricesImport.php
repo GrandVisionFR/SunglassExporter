@@ -1,15 +1,15 @@
 <?php
 namespace App\Imports;
 
-use App\Models\Importer\Price;
+use App\Models\Importer\Prices;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 
-class PriceImport implements ToModel, WithCustomCsvSettings
+class PricesImport implements ToModel, WithCustomCsvSettings
 {
     public function model(Array $row)
     {
-        return new Price([
+        return new Prices([
             'catalog_version' => $row['1'],
             'product' => $row['2'],
             'start_time' => $row['3'],

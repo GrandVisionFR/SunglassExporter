@@ -4,9 +4,9 @@ namespace App\Models\Importer;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Price extends Model
+class Prices extends Model
 {
-    protected $table = 'price';
+    protected $table = 'prices';
     protected $primaryKey = 'id';
 
     protected $fillable = [

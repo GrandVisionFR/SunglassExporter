@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Console\Commands\Exporter;
+namespace App\Console\Commands\Etl;
 
 use Illuminate\Console\Command;
+use App\Models\Importer\Prices;
+use App\Models\Importer\Stocks;
 use App\Models\Importer\Frames;
 use App\Models\Importer\FramesVariant;
 use App\Models\Exporter\ExportProducts;
-use App\Models\Importer\Price;
-use App\Models\Importer\Stocks;
-use App\Exports\SunglassGopExport;
-use App\Exports\SunglassGdoExport;
-use Maatwebsite\Excel\Facades\Excel;
 
-class SunglassExporter extends Command
+class FramesEtl extends Command
 {
 
     const PRODUCT_TYPE_FRAME    = 'Lunettes de vue';
@@ -91,14 +88,14 @@ class SunglassExporter extends Command
      *
      * @var string
      */
-    protected $signature = 'exporter:sunglass';
+    protected $signature = 'etl:frames';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Export to CSV sunglasses DB.';
+    protected $description = 'Etl from frames to export products';
 
     /**
      * Create a new command instance.
@@ -132,7 +129,7 @@ class SunglassExporter extends Command
             if(!$productBase)
                 continue;
 
-            $productPrice = Price::where('catalog_version', $product->catalog_version)
+            $productPrice = Prices::where('catalog_version', $product->catalog_version)
                 ->where('product', $product->code)
                 ->orderBy('start_time', 'DESC')
                 ->get();
@@ -209,17 +206,15 @@ class SunglassExporter extends Command
             }
 
             $nSession = (array) $nSession;
-            $exportSunglass = new ExportProducts();
+            $exportProducts = new ExportProducts();
             foreach(array_keys($nSession) as $key){
                 if(in_array($key, $this->availableFields)) {
-                    $exportSunglass->$key = $nSession[$key];
+                    $exportProducts->$key = $nSession[$key];
                 }
             }
-            $exportSunglass->save();
+            $exportProducts->save();
         }
 
-        Excel::store(new SunglassGopExport, getenv("FRAMES_EXPORT_GOP"));
-        Excel::store(new SunglassGdoExport, getenv("FRAMES_EXPORT_GDO"));
         return;
     }
 

@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
-use App\Models\Exporter\Export_sunglass;
+use App\Models\Exporter\ExportFrames;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class SunglassGdoExport implements FromCollection, WithHeadings
@@ -13,7 +13,7 @@ class SunglassGdoExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        return Export_sunglass::select([
+        return ExportFrames::select([
             'id',
             'title',
             'description',

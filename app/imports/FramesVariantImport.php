@@ -10,21 +10,21 @@ class FramesVariantImport implements ToModel, WithCustomCsvSettings
     public function model(Array $row)
     {
         return new FramesVariant([
-            'sunglass_variant_catalog_version' => $row['1'],
-            'sunglass_variant_code' => $row['2'],
-            'sunglass_variant_base_product' => $row['3'],
-            'sunglass_variant_sapid' => $row['4'],
-            'sunglass_variant_online_date' => $row['5'],
-            'sunglass_variant_offline_date' => $row['6'],
-            'sunglass_variant_synergie_name_fr' => $row['7'],
-            'sunglass_variant_macro_univers' => $row['8'],
-            'sunglass_variant_supercategories' => $row['9'],
-            'sunglass_variant_frame_incontournable' => $row['10'],
-            'sunglass_variant_description_fr' => $row['11'],
-            'sunglass_variant_caliber_size' => $row['12'],
-            'sunglass_variant_frame_web_colour' => $row['13'],
-            'sunglass_variant_ean' => $row['14'],
-            'sunglass_variant_promo_stickers' => $row['15'],
+            'catalog_version' => $row['1'],
+            'code' => $row['2'],
+            'base_product' => $row['3'],
+            'sapid' => $row['4'],
+            'online_date' => $row['5'],
+            'offline_date' => $row['6'],
+            'synergie_name_fr' => $row['7'],
+            'macro_univers' => $row['8'],
+            'supercategories' => $row['9'],
+            'frame_incontournable' => $row['10'],
+            'description_fr' => $row['11'],
+            'caliber_size' => $row['12'],
+            'frame_web_colour' => $row['13'],
+            'ean' => $row['14'],
+            'promo_stickers' => $row['15'],
         ]);
     }
 

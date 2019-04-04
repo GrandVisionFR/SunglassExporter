@@ -5,7 +5,7 @@ namespace App\Console\Commands\Exporter;
 use Illuminate\Console\Command;
 use App\Models\Importer\Frames;
 use App\Models\Importer\FramesVariant;
-use App\Models\Exporter\Export_sunglass;
+use App\Models\Exporter\ExportFrames;
 use App\Models\Importer\Price;
 use App\Models\Importer\Stocks;
 use App\Exports\SunglassGopExport;
@@ -117,22 +117,23 @@ class SunglassExporter extends Command
      */
     public function handle()
     {
-        Export_sunglass::truncate();
-        $products = FramesVariant::distinct('sunglass_variant_code')->get();
+        ExportFrames::truncate();
+        $products = FramesVariant::distinct('code')->get();
         foreach($products as $product){
-            if($product->sunglass_variant_sapid == "sapid")
+
+            if($product->sapid == "sapid")
                 continue;
                 
-            $productBase = Frames::where('sunglass_code', $product->sunglass_variant_base_product)
-                ->where('sunglass_catalog_version', $product->sunglass_variant_catalog_version)
+            $productBase = Frames::where('code', $product->base_product)
+                ->where('catalog_version', $product->catalog_version)
                 ->first();
 
             // Bypass variant if no baseProduct found
             if(!$productBase)
                 continue;
 
-            $productPrice = Price::where('price_catalog_version', $product->sunglass_variant_catalog_version)
-                ->where('price_product', $product->sunglass_variant_code)
+            $productPrice = Price::where('price_catalog_version', $product->catalog_version)
+                ->where('price_product', $product->code)
                 ->orderBy('price_start_time', 'DESC')
                 ->get();
 
@@ -140,7 +141,7 @@ class SunglassExporter extends Command
             if(!$productPrice)
                 continue;
 
-            $productStocks = Stocks::where('productCode', $product->sunglass_variant_code)
+            $productStocks = Stocks::where('productCode', $product->code)
                 ->first();
 
             // Bypass variant if no stock info found
@@ -149,35 +150,35 @@ class SunglassExporter extends Command
 
             $nSession = (object) $this->sessionTpl;
 
-            $nSession->export_type              = $product->sunglass_variant_catalog_version;
-            $nSession->id                       = $product->sunglass_variant_code;
-            $nSession->color                    = $product->sunglass_variant_frame_web_colour;
-            $nSession->gtin                     = $product->sunglass_variant_ean;
-            $nSession->promosticker             = $product->sunglass_variant_promo_stickers;
+            $nSession->export_type              = $product->catalog_version;
+            $nSession->id                       = $product->code;
+            $nSession->color                    = $product->frame_web_colour;
+            $nSession->gtin                     = $product->ean;
+            $nSession->promosticker             = $product->promo_stickers;
 
-            $nSession->material                 = $productBase->sunglass_frame_material;
-            $nSession->size                     = $productBase->sunglass_nose_size;
-            $nSession->shape                    = $productBase->sunglass_frame_shape;
-            $nSession->brand                    = $productBase->sunglass_brand_name;
+            $nSession->material                 = $productBase->frame_material;
+            $nSession->size                     = $productBase->nose_size;
+            $nSession->shape                    = $productBase->frame_shape;
+            $nSession->brand                    = $productBase->brand_name;
 
             $nSession->availability             = $productStocks->stock_text;
 
-            $nSession->product_type             = $this->getProductType($productBase->sunglass_code);
-            $nSession->title                    = $this->getProductTitle($productBase->sunglass_code, $productBase->sunglass_brand_name, $productBase->sunglass_frame_genre, $productBase->sunglass_age_range, $product->sunglass_variant_frame_web_colour, $product->sunglass_variant_synergie_name_fr);
-            $nSession->description              = $this->getProductDescription($productBase->sunglass_code, $productBase->sunglass_brand_name, $productBase->sunglass_frame_material, $product->sunglass_variant_frame_web_colour, $product->sunglass_variant_synergie_name_fr);
-            $nSession->age_group                = $this->getProductAgeGroup($productBase->sunglass_age_range);
-            $nSession->gender                   = $this->getProductGender($productBase->sunglass_frame_genre);
+            $nSession->product_type             = $this->getProductType($productBase->code);
+            $nSession->title                    = $this->getProductTitle($productBase->code, $productBase->brand_name, $productBase->frame_genre, $productBase->age_range, $product->frame_web_colour, $product->synergie_name_fr);
+            $nSession->description              = $this->getProductDescription($productBase->code, $productBase->brand_name, $productBase->frame_material, $product->frame_web_colour, $product->synergie_name_fr);
+            $nSession->age_group                = $this->getProductAgeGroup($productBase->age_range);
+            $nSession->gender                   = $this->getProductGender($productBase->frame_genre);
 
             $nSession->condition                = "new";
             $nSession->google_product_category  = "178";
             $nSession->shipping                 = "FR:::4.90 EUR";
 
-            if($product->sunglass_variant_catalog_version == getenv("GOP_CATALOG_CODE")) {
-                $nSession->link = "https://www.grandoptical.com/p/" . $product->sunglass_variant_code;
-                $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-            } elseif($product->sunglass_variant_catalog_version == getenv("GDO_CATALOG_CODE")) {
-                $nSession->link = "https://www.generale-optique.com/p/" . $product->sunglass_variant_code;
-                $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sunglass_variant_sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+            if($product->catalog_version == getenv("GOP_CATALOG_CODE")) {
+                $nSession->link = "https://www.grandoptical.com/p/" . $product->code;
+                $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
+            } elseif($product->catalog_version == getenv("GDO_CATALOG_CODE")) {
+                $nSession->link = "https://www.generale-optique.com/p/" . $product->code;
+                $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
             } else {
                 continue;
             }
@@ -208,7 +209,7 @@ class SunglassExporter extends Command
             }
 
             $nSession = (array) $nSession;
-            $exportSunglass = new Export_sunglass();
+            $exportSunglass = new ExportFrames();
             foreach(array_keys($nSession) as $key){
                 if(in_array($key, $this->availableFields)) {
                     $exportSunglass->$key = $nSession[$key];

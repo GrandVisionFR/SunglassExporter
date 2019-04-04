@@ -57,7 +57,7 @@ class SunglassImporter extends Command
         Excel::import(new FramesImport, storage_path(getenv("FRAMES_FILE")));
         Excel::import(new FramesVariantImport, storage_path(getenv("FRAMES_VARIANT_FILE")));
 
-        Artisan::call("exporter:sunglass");
+        //Artisan::call("exporter:sunglass");
         return true;
     }
 }

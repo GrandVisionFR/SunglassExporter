@@ -3,13 +3,13 @@
 namespace App\Console\Commands\Exporter;
 
 use Illuminate\Console\Command;
-use App\Models\Importer\Sunglass;
-use App\Models\Importer\Sunglass_variant;
+use App\Models\Importer\Frames;
+use App\Models\Importer\FramesVariant;
 use App\Models\Exporter\Export_sunglass;
 use App\Models\Importer\Price;
+use App\Models\Importer\Stocks;
 use App\Exports\SunglassGopExport;
 use App\Exports\SunglassGdoExport;
-use App\Models\Importer\Stocks;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SunglassExporter extends Command
@@ -118,12 +118,12 @@ class SunglassExporter extends Command
     public function handle()
     {
         Export_sunglass::truncate();
-        $products = Sunglass_variant::distinct('sunglass_variant_code')->get();
+        $products = FramesVariant::distinct('sunglass_variant_code')->get();
         foreach($products as $product){
             if($product->sunglass_variant_sapid == "sapid")
                 continue;
                 
-            $productBase = Sunglass::where('sunglass_code', $product->sunglass_variant_base_product)
+            $productBase = Frames::where('sunglass_code', $product->sunglass_variant_base_product)
                 ->where('sunglass_catalog_version', $product->sunglass_variant_catalog_version)
                 ->first();
 
@@ -217,8 +217,8 @@ class SunglassExporter extends Command
             $exportSunglass->save();
         }
 
-        Excel::store(new SunglassGopExport, getenv("SUNGLASS_EXPORT_GOP"));
-        Excel::store(new SunglassGdoExport, getenv("SUNGLASS_EXPORT_GDO"));
+        Excel::store(new SunglassGopExport, getenv("FRAMES_EXPORT_GOP"));
+        Excel::store(new SunglassGdoExport, getenv("FRAMES_EXPORT_GDO"));
         return;
     }
 

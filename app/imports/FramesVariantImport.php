@@ -1,15 +1,15 @@
 <?php
 namespace App\Imports;
 
-use App\Models\Importer\Sunglass_variant;
+use App\Models\Importer\FramesVariant;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 
-class SunglassVariantImport implements ToModel, WithCustomCsvSettings
+class FramesVariantImport implements ToModel, WithCustomCsvSettings
 {
     public function model(Array $row)
     {
-        return new Sunglass_variant([
+        return new FramesVariant([
             'sunglass_variant_catalog_version' => $row['1'],
             'sunglass_variant_code' => $row['2'],
             'sunglass_variant_base_product' => $row['3'],

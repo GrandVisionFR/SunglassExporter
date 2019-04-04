@@ -4,7 +4,7 @@ namespace App\Models\Importer;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Sunglass extends Model
+class Frames extends Model
 {
     protected $table = 'sunglass';
     protected $primaryKey = 'sunglass_id';

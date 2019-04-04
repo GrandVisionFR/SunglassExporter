@@ -3,15 +3,14 @@ namespace App\Console\Commands\Importer;
 
 use Illuminate\Console\Command;
 use App\Imports\FramesImport;
-use App\Imports\SunglassImport;
-use App\Imports\SunglassVariantImport;
+use App\Imports\FramesVariantImport;
 use App\Imports\PriceImport;
 use App\Imports\StocksImport;
 use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Models\Importer\Sunglass;
+use App\Models\Importer\Frames;
+use App\Models\Importer\FramesVariant;
 use App\Models\Importer\Price;
-use App\Models\Importer\Sunglass_variant;
 use App\Models\Importer\Stocks;
 
 class SunglassImporter extends Command
@@ -49,16 +48,16 @@ class SunglassImporter extends Command
     {
         Price::truncate();
         Stocks::truncate();
-        Sunglass::truncate();
-        Sunglass_variant::truncate();
+        Frames::truncate();
+        FramesVariant::truncate();
 
-        Excel::import(new PriceImport, storage_path(getenv("SUNGLASS_PRICE_FILE")));
-        Excel::import(new StocksImport, storage_path(getenv("SUNGLASS_STOCK_1_FILE")));
-        Excel::import(new StocksImport, storage_path(getenv("SUNGLASS_STOCK_2_FILE")));
-        Excel::import(new SunglassImport, storage_path(getenv("SUNGLASS_FILE")));
-        Excel::import(new SunglassVariantImport, storage_path(getenv("SUNGLASS_VARIANT_FILE")));
+        Excel::import(new PriceImport, storage_path(getenv("PRICE_FILE")));
+        Excel::import(new StocksImport, storage_path(getenv("STOCK_1_FILE")));
+        Excel::import(new StocksImport, storage_path(getenv("STOCK_2_FILE")));
+        Excel::import(new FramesImport, storage_path(getenv("FRAMES_FILE")));
+        Excel::import(new FramesVariantImport, storage_path(getenv("FRAMES_VARIANT_FILE")));
 
-        //Artisan::call("exporter:sunglass");
+        Artisan::call("exporter:sunglass");
         return true;
     }
 }

@@ -153,12 +153,12 @@ class SunglassExporter extends Command
             $nSession->id                       = $product->sunglass_variant_code;
             $nSession->color                    = $product->sunglass_variant_frame_web_colour;
             $nSession->gtin                     = $product->sunglass_variant_ean;
+            $nSession->promosticker             = $product->sunglass_variant_promo_stickers;
 
             $nSession->material                 = $productBase->sunglass_frame_material;
             $nSession->size                     = $productBase->sunglass_nose_size;
             $nSession->shape                    = $productBase->sunglass_frame_shape;
             $nSession->brand                    = $productBase->sunglass_brand_name;
-            $nSession->promosticker             = $productBase->sunglass_promo_stickers;
 
             $nSession->availability             = $productStocks->stock_text;
 

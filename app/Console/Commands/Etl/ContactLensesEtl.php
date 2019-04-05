@@ -5,11 +5,11 @@ namespace App\Console\Commands\Etl;
 use Illuminate\Console\Command;
 use App\Models\Importer\Prices;
 use App\Models\Importer\Stocks;
-use App\Models\Importer\Frames;
-use App\Models\Importer\FramesVariant;
+use App\Models\Importer\ContactLenses;
+use App\Models\Importer\ContactLensesVariant;
 use App\Models\Exporter\ExportProducts;
 
-class FramesEtl extends Command
+class ContactLensesEtl extends Command
 {
 
     const PRODUCT_TYPE_FRAME                = 'Lunettes de vue';
@@ -70,35 +70,19 @@ class FramesEtl extends Command
         'export_type',
     ];
 
-    protected $ageGroupMapping = [
-        'AGE_0_3'   => 'bébés',
-        'AGE_4_6'   => 'tout-petits',
-        'AGE_7_12'  => 'enfants',
-        'AGE_13_13' => 'enfants',
-        'DEFAULT'   => 'adultes',
-    ];
-
-    protected $genderMapping = [
-        'Homme'         => 'homme',
-        'Femme'         => 'femme',
-        'Homme,Femme'   => 'unisexe',
-        'Enfant'        => 'unisexe',
-        'DEFAULT'       => '',
-    ];
-
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'etl:frames';
+    protected $signature = 'etl:contact-lenses';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Etl from frames to export products';
+    protected $description = 'Etl from contact-lenses to export products';
 
     /**
      * Create a new command instance.
@@ -117,13 +101,13 @@ class FramesEtl extends Command
      */
     public function handle()
     {
-        $products = FramesVariant::distinct('code')->get();
+        $products = ContactLensesVariant::distinct('code')->get();
         foreach($products as $product){
 
             if($product->sapid == "sapid")
                 continue;
-                
-            $productBase = Frames::where('code', $product->base_product)
+
+            $productBase = ContactLenses::where('code', $product->base_product)
                 ->where('catalog_version', $product->catalog_version)
                 ->first();
 
@@ -132,7 +116,7 @@ class FramesEtl extends Command
                 continue;
 
             $productPrice = Prices::where('catalog_version', $product->catalog_version)
-                ->where('product', $product->code)
+                ->where('product', $product->base_product)
                 ->orderBy('start_time', 'DESC')
                 ->get();
 
@@ -140,6 +124,13 @@ class FramesEtl extends Command
             if(!$productPrice)
                 continue;
 
+            $nSession = (object) $this->sessionTpl;
+
+            $nSession->export_type              = $product->catalog_version;
+            $nSession->id                       = $product->code;
+
+
+            /*
             $productStocks = Stocks::where('productCode', $product->code)
                 ->first();
 
@@ -151,10 +142,6 @@ class FramesEtl extends Command
             if(strlen($product->ean) < 12 || strlen($product->ean) > 13)
                 continue;
 
-            $nSession = (object) $this->sessionTpl;
-
-            $nSession->export_type              = $product->catalog_version;
-            $nSession->id                       = $product->code;
             $nSession->color                    = str_replace(',', '/', $product->frame_web_colour);
             $nSession->gtin                     = $product->ean;
             $nSession->promosticker             = $product->promo_stickers;
@@ -181,6 +168,7 @@ class FramesEtl extends Command
             } else {
                 continue;
             }
+*/
 
             $found = false;
             $defaultOriginalPrice = null;
@@ -218,120 +206,6 @@ class FramesEtl extends Command
         }
 
         return;
-    }
-
-    /**
-     * @param $baseProductCode
-     * @return string
-     */
-    protected function getProductType($baseProductCode){
-        if(substr($baseProductCode, 0, 1) == 'M') {
-            return self::PRODUCT_TYPE_FRAME;
-        }elseif(substr($baseProductCode, 0, 1) == 'S'){
-            return self::PRODUCT_TYPE_SUNGLASS;
-        }
-    }
-
-    /**
-     * @param $baseProductCode
-     * @return string
-     */
-    protected function getProductGoogleCategory($baseProductCode){
-        if(substr($baseProductCode, 0, 1) == 'M') {
-            return self::PRODUCT_GOOGLE_CATEGORY_FRAME;
-        }elseif(substr($baseProductCode, 0, 1) == 'S'){
-            return self::PRODUCT_GOOGLE_CATEGORY_SUNGLASS;
-        }
-    }
-
-    /**
-     * @param $ageGroup
-     * @return mixed
-     */
-    protected function getProductAgeGroup($ageGroup, $gender){
-        if($gender == 'Enfant'){
-            return $this->ageGroupMapping['AGE_13_13'];
-        }
-        if(isset($this->ageGroupMapping[$ageGroup])){
-            return $this->ageGroupMapping[$ageGroup];
-        }
-        return $this->ageGroupMapping['DEFAULT'];
-    }
-
-    /**
-     * @param $ageGroup
-     * @return mixed
-     */
-    protected function getProductGender($gender){
-        if(isset($this->genderMapping[$gender])){
-            return $this->genderMapping[$gender];
-        }
-        return $this->genderMapping['DEFAULT'];
-    }
-
-    /**
-     * @param $productType
-     * @param $brand
-     * @param $gender
-     * @param $ageGroup
-     * @param $color
-     * @param $synergieName
-     * @return string
-     */
-    protected function getProductTitle($baseProductCode, $brand, $gender, $ageGroup, $color, $synergieName){
-        $title = '';
-
-        if(isset($brand)){
-            $title .= ucfirst($brand) . ' - ';
-        }
-
-        $title .= $this->getProductType($baseProductCode);
-
-        if(isset($this->ageGroupMapping[$ageGroup])){
-            $title .= ' ' . $this->ageGroupMapping[$ageGroup];
-        } else {
-            $title .= ' ' . $gender;
-        }
-
-        if(isset($color)){
-            $title .= ' ' . $color;
-        }
-
-        if(strtoupper(preg_replace('/[ -]+/','', $brand)) == 'RAYBAN'){
-            $title .= ' - ' . $synergieName;
-        }
-
-        return $title;
-    }
-
-    /**
-     * @param $baseProductCode
-     * @param $brand
-     * @param $material
-     * @param $color
-     * @param $synergieName
-     * @return string
-     */
-    protected function getProductDescription($baseProductCode, $brand, $material, $color, $synergieName){
-        $description = $this->getProductType($baseProductCode);
-
-        if(isset($brand)){
-            $description .= ' ' . $brand;
-        }
-
-        if(isset($synergieName)){
-            $description .= ' ' . $synergieName;
-        }
-
-        if(isset($material)){
-            $description .= ' en ' . $material;
-        }
-
-        if(isset($color)){
-            $description .= ' ' . $color;
-        }
-
-        return $description;
     }
 
 }

@@ -35,8 +35,9 @@ class CreateExportProductsTable extends Migration
             $table->text('size')->nullable();
             $table->text('age_group')->nullable();
             $table->text('gender')->nullable();
-            $table->text('export_type')->nullable();
             $table->text('promosticker')->nullable();
+            $table->text('excluded_destination')->nullable();
+            $table->text('export_type')->nullable();
             $table->timestamps();
         });
     }

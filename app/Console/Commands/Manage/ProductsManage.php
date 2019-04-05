@@ -38,12 +38,14 @@ class ProductsManage extends Command
      */
     public function handle()
     {
-
         Artisan::call("importer:prices");
         Artisan::call("importer:stocks");
         Artisan::call("importer:frames");
+        Artisan::call("importer:contact-lenses");
 
+        Artisan::call("etl:clean");
         Artisan::call("etl:frames");
+        //Artisan::call("etl:contact-lenses");
 
         Artisan::call("exporter:products");
         return;

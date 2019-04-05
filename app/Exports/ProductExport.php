@@ -42,6 +42,7 @@ class ProductExport implements FromCollection, WithHeadings
             'age_group',
             'gender',
             'promosticker',
+            'excluded_destination',
             ])->where('export_type', '=', $this->exportType)->get();
     }
 
@@ -69,6 +70,7 @@ class ProductExport implements FromCollection, WithHeadings
             'age_group',
             'gender',
             'custom_label_0',
+            'excluded_destination',
         ];
     }
 }

@@ -6,7 +6,7 @@ class GdoProductExport extends ProductExport
 {
 
     /**
-     * @param string $exportType
+     * GdoProductExport constructor.
      */
     public function __construct()
     {

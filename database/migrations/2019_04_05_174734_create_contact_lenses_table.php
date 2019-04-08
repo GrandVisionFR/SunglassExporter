@@ -14,19 +14,34 @@ class CreateContactLensesTable extends Migration
     public function up()
     {
         Schema::create('contact_lenses', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('catalog_version')->nullable();
-            $table->string('code')->nullable();
-            $table->string('sapid')->nullable();
-            $table->string('online_date')->nullable();
-            $table->string('offline_date')->nullable();
-            $table->string('synergie_name_fr')->nullable();
-            $table->string('brand_name')->nullable();
-            $table->string('lens_colour')->nullable();
-            $table->string('lens_type')->nullable();
-            $table->string('vision_type')->nullable();
-            $table->string('contact_supplier')->nullable();
-            $table->string('contact_duration')->nullable();
+            $table->increments('pk');
+            $table->text('id')->nullable();
+            $table->text('title')->nullable();
+            $table->text('description')->nullable();
+            $table->text('price')->nullable();
+            $table->text('sale_price')->nullable();
+            $table->text('sale_price_effective_date')->nullable();
+            $table->text('link')->nullable();
+            $table->text('condition')->nullable();
+            $table->text('product_type')->nullable();
+            $table->text('brand')->nullable();
+            $table->text('gtin')->nullable();
+            $table->text('image_link')->nullable();
+            $table->text('google_product_category')->nullable();
+            $table->text('shipping')->nullable();
+            $table->text('availability')->nullable();
+            $table->text('material')->nullable();
+            $table->text('color')->nullable();
+            $table->text('size')->nullable();
+            $table->text('shape')->nullable();
+            $table->text('gender')->nullable();
+            $table->text('age_group')->nullable();
+            $table->text('custom_label_0')->nullable();
+            $table->text('custom_label_1')->nullable();
+            $table->text('custom_label_2')->nullable();
+            $table->text('custom_label_3')->nullable();
+            $table->text('custom_label_4')->nullable();
+            $table->text('catalog_version')->nullable();
             $table->timestamps();
         });
     }

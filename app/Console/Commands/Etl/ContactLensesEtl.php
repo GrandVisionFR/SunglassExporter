@@ -6,17 +6,10 @@ use Illuminate\Console\Command;
 use App\Models\Importer\Prices;
 use App\Models\Importer\Stocks;
 use App\Models\Importer\ContactLenses;
-use App\Models\Importer\ContactLensesVariant;
 use App\Models\Exporter\ExportProducts;
 
 class ContactLensesEtl extends Command
 {
-
-    const PRODUCT_TYPE_FRAME                = 'Lunettes de vue';
-    const PRODUCT_TYPE_SUNGLASS             = 'Lunettes de soleil';
-
-    const PRODUCT_GOOGLE_CATEGORY_FRAME     = 524;
-    const PRODUCT_GOOGLE_CATEGORY_SUNGLASS  = 178;
 
     protected $sessionTpl = [
         'id'                            => '',
@@ -27,13 +20,13 @@ class ContactLensesEtl extends Command
         'sale_price'                    => '',
         'sale_price_effective_date'     => '',
         'link'                          => '',
-        'condition'                     => 'new',
+        'condition'                     => '',
         'product_type'                  => '',
         'brand'                         => '',
         'gtin'                          => '',
         'image_link'                    => '',
         'google_product_category'       => '',
-        'shipping'                      => 'FR:::4.90 EUR',
+        'shipping'                      => '',
         'availability'                  => '',
         'material'                      => '',
         'color'                         => '',
@@ -101,99 +94,37 @@ class ContactLensesEtl extends Command
      */
     public function handle()
     {
-        $products = ContactLensesVariant::distinct('code')->get();
+        $products = ContactLenses::distinct('id')->get();
         foreach($products as $product){
 
-            if($product->sapid == "sapid")
-                continue;
-
-            $productBase = ContactLenses::where('code', $product->base_product)
-                ->where('catalog_version', $product->catalog_version)
-                ->first();
-
-            // Bypass variant if no baseProduct found
-            if(!$productBase)
-                continue;
-
-            $productPrice = Prices::where('catalog_version', $product->catalog_version)
-                ->where('product', $product->base_product)
-                ->orderBy('start_time', 'DESC')
-                ->get();
-
-            // Bypass variant if no priceRow found
-            if(!$productPrice)
+            if($product->id == "id" || $product->id == null)
                 continue;
 
             $nSession = (object) $this->sessionTpl;
 
-            $nSession->export_type              = $product->catalog_version;
-            $nSession->id                       = $product->code;
+            $nSession->id                           = $product->id;
+            $nSession->title                        = $product->title;
+            $nSession->description                  = $product->description;
+            $nSession->price                        = $product->price;
+            $nSession->sale_price                   = $product->sale_price;
+            $nSession->sale_price_effective_date    = $product->sale_price_effective_date;
+            $nSession->link                         = $product->link;
+            $nSession->condition                    = $product->condition;
+            $nSession->product_type                 = $product->product_type;
+            $nSession->brand                        = $product->brand;
+            $nSession->gtin                         = $product->gtin;
+            $nSession->image_link                   = $product->image_link;
+            $nSession->google_product_category      = $product->google_product_category;
+            $nSession->shipping                     = $product->shipping;
+            $nSession->availability                 = $product->availability;
+            $nSession->material                     = $product->material;
+            $nSession->color                        = $product->color;
+            $nSession->size                         = $product->size;
+            $nSession->age_group                    = $product->age_group;
+            $nSession->gender                       = $product->gender;
 
-
-            /*
-            $productStocks = Stocks::where('productCode', $product->code)
-                ->first();
-
-            // Bypass variant if no stock info found
-            if(!$productStocks)
-                continue;
-
-            // Bypass variant if ean length is not 12 or 13
-            if(strlen($product->ean) < 12 || strlen($product->ean) > 13)
-                continue;
-
-            $nSession->color                    = str_replace(',', '/', $product->frame_web_colour);
-            $nSession->gtin                     = $product->ean;
-            $nSession->promosticker             = $product->promo_stickers;
-
-            $nSession->material                 = $productBase->frame_material;
-            $nSession->size                     = $productBase->nose_size;
-            $nSession->brand                    = $productBase->brand_name;
-
-            $nSession->availability             = $productStocks->stock_text;
-
-            $nSession->product_type             = $this->getProductType($productBase->code);
-            $nSession->google_product_category  = $this->getProductGoogleCategory($productBase->code);
-            $nSession->title                    = $this->getProductTitle($productBase->code, $productBase->brand_name, $productBase->frame_genre, $productBase->age_range, $product->frame_web_colour, $product->synergie_name_fr);
-            $nSession->description              = $this->getProductDescription($productBase->code, $productBase->brand_name, $productBase->frame_material, $product->frame_web_colour, $product->synergie_name_fr);
-            $nSession->age_group                = $this->getProductAgeGroup($productBase->age_range, $productBase->frame_genre);
-            $nSession->gender                   = $this->getProductGender($productBase->frame_genre);
-
-            if($product->catalog_version == getenv("GOP_CATALOG_CODE")) {
-                $nSession->link = "https://www.grandoptical.com/p/" . $product->code;
-                $nSession->image_link = 'https://images.grandoptical.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-            } elseif($product->catalog_version == getenv("GDO_CATALOG_CODE")) {
-                $nSession->link = "https://www.generale-optique.com/p/" . $product->code;
-                $nSession->image_link = 'https://images.generale-optique.com/gvfrance?set=angle%5B1%5D%2CarticleNumber%5B' . $product->sapid . '%5D%2Ccompany%5Bgdo%5D%2CfinalSize%5Bproductdetails%5D&call=url%5Bfile:common/productPresentation0517%5D';
-            } else {
-                continue;
-            }
-*/
-
-            $found = false;
-            $defaultOriginalPrice = null;
-            if(count($productPrice) > 0) {
-                foreach ($productPrice as $price) {
-                    if ($found == false) {
-                        $currentDate = date('Y-m-d');
-                        $startDate = explode('T', $price->start_time)[0];
-                        $endDate = explode('T', $price->end_time)[0];
-                        if($startDate == '' && $endDate == ''){
-                            $defaultOriginalPrice = number_format($price->price, 2) . " EUR";
-                        } else if ($currentDate >= $startDate && $endDate >= $currentDate) {
-                            $found = true;
-                            $nSession->price = number_format($price->original_price, 2) . " EUR";
-                            $nSession->sale_price = number_format($price->price, 2) . " EUR";
-                            $nSession->sale_price_effective_date = $price->start_time . '/' . $price->end_time;
-                        }
-                    }
-                }
-                if ($found == false) {
-                    $nSession->price = $defaultOriginalPrice;
-                }
-            } else{
-                continue;
-            }
+            $nSession->promosticker                 = $product->custom_label_0;
+            $nSession->export_type                  = $product->catalog_version;
 
             $nSession = (array) $nSession;
             $exportProducts = new ExportProducts();

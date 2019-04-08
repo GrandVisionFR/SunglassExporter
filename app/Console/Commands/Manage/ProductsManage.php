@@ -45,7 +45,7 @@ class ProductsManage extends Command
 
         Artisan::call("etl:clean");
         Artisan::call("etl:frames");
-        //Artisan::call("etl:contact-lenses");
+        Artisan::call("etl:contact-lenses");
 
         Artisan::call("exporter:products");
         return;

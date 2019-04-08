@@ -2,10 +2,9 @@
 namespace App\Console\Commands\Importer;
 
 use Illuminate\Console\Command;
-use App\Imports\ContactLensesImport;
-use App\Imports\ContactLensesVariantImport;
+use App\Imports\GopContactLensesImport;
+use App\Imports\GdoContactLensesImport;
 use App\Models\Importer\ContactLenses;
-use App\Models\Importer\ContactLensesVariant;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ContactLensesImporter extends Command
@@ -42,10 +41,9 @@ class ContactLensesImporter extends Command
     public function handle()
     {
         ContactLenses::truncate();
-        ContactLensesVariant::truncate();
 
-        Excel::import(new ContactLensesImport, storage_path(getenv("CONTACT_LENSES_FILE")));
-        Excel::import(new ContactLensesVariantImport, storage_path(getenv("CONTACT_LENSES_VARIANT_FILE")));
+        Excel::import(new GopContactLensesImport, storage_path(getenv("CONTACT_LENSES_GOP_FILE")));
+        Excel::import(new GdoContactLensesImport, storage_path(getenv("CONTACT_LENSES_GDO_FILE")));
 
         return true;
     }
